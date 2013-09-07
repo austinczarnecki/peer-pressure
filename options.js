@@ -9,13 +9,18 @@ function reload_table() {
   }
 }
 
+function append_site(site) {
+  var keysArray = Object.keys(localStorage);
+  $('#blocked-sites').append('<tr><td class="site">'+ site + '</td></tr>');
+}
+
 // Saves options to localStorage.
 function save_options() {
   var url = document.getElementById("url").value;
   localStorage[url] = true;
 
   //update the table
-  reload_table();
+  append_site(url);
 
   // Update status to let user know options were saved.
   var status = document.getElementById("status");
