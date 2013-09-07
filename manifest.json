@@ -10,7 +10,8 @@
   },
 
   "permissions": [
-    "tabs"
+    "tabs",
+    "https://graph.facebook.com/"
   ],
   "content_scripts": [
     {
