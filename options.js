@@ -1,5 +1,8 @@
 // Save this script as `options.js`
 
+//load current blocked sites into table
+$
+
 // Saves options to localStorage.
 function save_options() {
   var url = document.getElementById("url").value;
