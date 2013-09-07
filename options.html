@@ -7,6 +7,8 @@
       font-family: Arial, Helvetica, sans-serif;
       font-size: 13px;
       padding: 20px;
+      margin: 20px;
+      background-color: #3cabb5;
     }
 
     td
@@ -46,6 +48,17 @@ Add new site: <input type="text" name="url" id="url"><button id="save">Save</but
 
 <div id="status"></div>
 <br>
+
+<p>In order to give PeerPressure permission to post to Facebook on your behalf, please visit <a href="https://developers.facebook.com/tools/explorer">Facebook graph explorer</a> and copy the following information into the fields below</p>
+
+
+<form>
+  <label for="token">Facebook user token</label>
+  <input type="text" name="token" id="token"><br>
+  <label for="userId">Facebook user ID</label>
+  <input type="text" name="userId" id="userId"><br>
+  <input type="submit" name="Submit" id="submit">
+</form>
 
 </body>
 <script src="jquery.js"></script>

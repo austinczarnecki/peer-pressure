@@ -46,6 +46,16 @@ function restore_options() {
   }
 }
 
+function save_id_and_token() {
+
+}
+
 $(document).ready(reload_table);
 document.addEventListener('DOMContentLoaded', restore_options);
+$('form').submit(function() {
+  var userId = document.getElementById("userId").value;
+  var userToken = document.getElementById("token").value;
+  localStorage["userId"] = userId;
+  localStorage["userToken"] = userToken;
+})
 document.querySelector('#save').addEventListener('click', save_options);
