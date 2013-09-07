@@ -4,10 +4,14 @@
   "name": "Peer Pressure",
   "description": "This extension keeps you from getting off task",
   "version": "1.0",
-  "options_page": "options.html"
+  "options_page": "options.html",
 
-  // "background": {
-  //   "scripts": ["background.js"]
-  // }
+  "background": {
+    "scripts": ["background.js"]
+  },
+
+  "permissions": [
+    "tabs"
+  ]
 
 }

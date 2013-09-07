@@ -2,13 +2,12 @@
 
 // Saves options to localStorage.
 function save_options() {
-  var select = document.getElementById("color");
-  var color = select.children[select.selectedIndex].value;
-  localStorage["favorite_color"] = color;
+  var url = document.getElementById("url").value;
+  localStorage[url] = true;
 
   // Update status to let user know options were saved.
   var status = document.getElementById("status");
-  status.innerHTML = "Options Saved.";
+  status.innerHTML = "Saving site to blacklist.";
   setTimeout(function() {
     status.innerHTML = "";
   }, 750);
