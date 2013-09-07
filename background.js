@@ -1,6 +1,5 @@
-var token = "CAACEdEose0cBAExBljIifV3mGWrDZBpHhToojlmVfi3MEIHnLGUEngv5M0sYCbcwqgjmgu0fEgvWmAEr9Ejy7FZC3LiFAx7zhovQpn4WYEhueJeqWNp3uTPKPmeOgZAU5ZBytwBR4FmwD7n2lF0ufstZCRkkNC4gg08ZChwB29yq8ntMFhgRhG5YDKljhWAQAZD"
-
 localStorage.clear();
+postedTabURL = {}
 
 var now = new Date();
 var strDateTime = [[AddZero(now.getDate()), AddZero(now.getMonth() + 1), now.getFullYear()].join("/"), [AddZero(now.getHours()), AddZero(now.getMinutes())].join(":"), now.getHours() >= 12 ? "PM" : "AM"].join(" ");
@@ -78,8 +77,10 @@ function punishUser(tab) {
   console.log(visited);
   console.log(keysArray);
   if (keysArray.indexOf(visited) != -1) {
-    if (!tab["postedToFB"]) {
-      $.post('https://graph.facebook.com/' + '100006458279825' + '/feed', { access_token: token, message: "I am visiting " + tab.url + " again!" }, function(response, status, request) {
+    if (!postedTabURL[tab.id]) {
+      console.log("posting to fb now!");
+      postedTabURL[tab.id] = true;
+      $.post('https://graph.facebook.com/' + localStorage["userId"] + '/feed', { access_token: localStorage["userToken"], message: "I am visiting " + tab.url + " again! # this is an api test message" }, function(response, status, request) {
         console.log(request.getAllResponseHeaders());
         tab["postedToFB"] = true;
       });
@@ -94,7 +95,8 @@ loadScript('jquery.min.js', function () {
     punishUser(tab);
   });
 
-  // chrome.tabs.onCreated.addListener(function(tab) {
-  //   punishUser(tab);
-  // });
+  chrome.tabs.onRemoved.addListener(function(tabID, removeInfo) {
+    // mark posted as false if tab is closed
+    postedTabURL[tabID] = false;
+  });
 });
