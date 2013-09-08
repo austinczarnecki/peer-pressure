@@ -4,27 +4,44 @@
   <style type="text/css" media="screen">
     body
     {
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 13px;
+      font-family: 'HelveticaNeue-Light', Helvetica, sans-serif;
+      font-size: 18px;
       padding: 20px;
       margin: 20px;
-      background-color: #3cabb5;
+      background-color: #42a8bc;
     }
-
-    td
-    {
-      font-size: 13px;
+    input {
+      background: #d8eef2;
+    }
+    #content {
+      background-color: #b2dde5;
+      margin-right: 20%;
+      margin-left: 20%;
+      padding: 5%;
+      border-radius: 30px;
+      moz-border-radius: 30px;
+      webkit-border-radius: 30px;
+    }
+    td {
       vertical-align: top;
       text-align: left;
+      padding: 5px;
     }
-
-    p
-    {
-      margin-top: 0.5em;
+    .delete {
+      visibility: hidden;
     }
-
-    button
-    {
+    tr:hover {
+      background-color: #8ccbd8;
+    }
+    tr:hover .delete {
+      visibility: visible;
+    }
+    h1 {
+      margin-top: 0px;
+    }
+    p {
+    }
+    button {
       white-space: pre;
     }
 
@@ -34,31 +51,35 @@
 
 <body>
 
-<h1>Blocked Sites:</h1>
+<div id="content">
 
-<table id="table">
-  <div id="blocked-sites">
+  <h1>Blocked Sites:</h1>
+
+  <table id="table">
+    <div id="blocked-sites">
+    </div>
+  </table>
+
+  <br>
+  <div>
+  Add new site: <input type="text" name="url" id="url"><button id="save">Save</button>
   </div>
-</table>
 
-<br>
-<div>
-Add new site: <input type="text" name="url" id="url"><button id="save">Save</button>
+  <div id="status"></div>
+  <br>
+
+  <p>In order to give PeerPressure permission to post to Facebook on your behalf, please visit <a href="https://developers.facebook.com/tools/explorer">Facebook graph explorer</a> and copy the following information into the fields below</p>
+
+
+  <form>
+    <label for="token">Facebook user token</label>
+    <input type="text" name="token" id="token"><br>
+    <label for="userId">Facebook user ID</label>
+    <input type="text" name="userId" id="userId"><br>
+    <input type="submit" name="Submit" id="submit">
+  </form>
+
 </div>
-
-<div id="status"></div>
-<br>
-
-<p>In order to give PeerPressure permission to post to Facebook on your behalf, please visit <a href="https://developers.facebook.com/tools/explorer">Facebook graph explorer</a> and copy the following information into the fields below</p>
-
-
-<form>
-  <label for="token">Facebook user token</label>
-  <input type="text" name="token" id="token"><br>
-  <label for="userId">Facebook user ID</label>
-  <input type="text" name="userId" id="userId"><br>
-  <input type="submit" name="Submit" id="submit">
-</form>
 
 </body>
 <script src="jquery.js"></script>
