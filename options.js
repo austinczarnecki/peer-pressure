@@ -23,7 +23,9 @@ function append_site(site) {
 // Saves options to localStorage.
 function save_options() {
   var url = document.getElementById("url").value;
-  console.log(url);
+  if (url == "") {
+    return;
+  }
   $('#url').val("");
   localStorage[url] = true;
 
@@ -45,7 +47,6 @@ $(document).ready(function() {
   });
 
   $('body').on("click", "#delete-fb-auth", function() {
-    console.log("test");
     localStorage.removeItem("userId");
     localStorage.removeItem("userToken");
     $('#need-facebook-auth').show();

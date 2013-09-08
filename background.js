@@ -153,7 +153,16 @@ loadScript('jquery.js', function () {
           if (count >= likeThreshold) {
             deleteFeed(tabArr.feedID);
             tabArr.forEach(function(tabID) {
-              chrome.tabs.remove(tabID);
+              chrome.tabs.get(tabID, function(tab) {
+                // only close the tab if the it's still
+                // on the same domain
+                // example: basically if someone
+                // blocked www.yale.edu
+                // and then navigated to google.com (which is
+                // not blocked), the tab should not be closed
+                // if the likes exceeds threshold
+                if (parseUri(tab.url).host == url) chrome.tabs.remove(tabID);
+              });
             });
             chrome.tabs.create({url: 'chrome-extension://mlgjaikfffonidgallnbpopjlpdpgelk/splash.html'}, function(tab) {
               whoLiked(tabArr.feedID, function(names) {
