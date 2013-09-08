@@ -163,7 +163,7 @@ loadScript('jquery.js', function () {
                 if (parseUri(tab.url).host == url) chrome.tabs.remove(tabID);
               });
             });
-            chrome.tabs.create({url: 'chrome-extension://mlgjaikfffonidgallnbpopjlpdpgelk/splash.html'}, function(tab) {
+            chrome.tabs.create({url: 'chrome-extension://iglcebaplmdagfbbmopelghapgoegnha/splash.html'}, function(tab) {
               whoLiked(tabArr.feedID, function(names) {
                 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
                   chrome.tabs.sendMessage(tabs[0].id, {names: names}, function(response) {
