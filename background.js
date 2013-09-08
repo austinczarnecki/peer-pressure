@@ -3,6 +3,7 @@ postedTabURL = {}
 postedFeeds = {}
 feedsTabIDTable = {}
 likeThreshold = 2;
+hasShownAlert = {};
 
 var now = new Date();
 var strDateTime = [[AddZero(now.getDate()), AddZero(now.getMonth() + 1), now.getFullYear()].join("/"), [AddZero(now.getHours()), AddZero(now.getMinutes())].join(":"), now.getHours() >= 12 ? "PM" : "AM"].join(" ");
@@ -95,11 +96,16 @@ function punishUser(tab) {
   }
 }
 
-function checkInput() {
+function checkInput(tab) {
   if (!localStorage["userId"] || !localStorage["userToken"]) {
+    // don't alert if we're in chrome-extensions or graph explorer
+    var uri = parseUri(tab.url);
+    if (uri.protocol == "chrome-extension" || uri.host == "developers.facebook.com" || uri.protocol == "chrome" || hasShownAlert[tab.id] ) return;
+    hasShownAlert[tab.id] = true;
     alert("You've installed PeerPressure but haven't yet given us permission to post on facebook for you! Please go to chrome-extensions and select options to configure the app.");
     return;
   }
+
 }
 
 function countLikes(feedID, cb) {
@@ -142,11 +148,12 @@ loadScript('jquery.min.js', function () {
 
   // now we have jquery enabled yay
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+    checkInput(tab);
     punishUser(tab);
   });
 
   chrome.tabs.onCreated.addListener(function(tab) {
-    checkInput();
+    hasShownAlert[tab.id] = false;
   });
 
   chrome.tabs.onRemoved.addListener(function(tabID, removeInfo) {
