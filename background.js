@@ -151,7 +151,6 @@ loadScript('jquery.js', function () {
         countLikes(tabArr.feedID, function(count) {
           if (count > 0) tabArr.feedLikeCount = count;
           if (count >= likeThreshold) {
-            deleteFeed(tabArr.feedID);
             tabArr.forEach(function(tabID) {
               chrome.tabs.get(tabID, function(tab) {
                 // only close the tab if the it's still
@@ -166,15 +165,14 @@ loadScript('jquery.js', function () {
             });
             chrome.tabs.create({url: 'chrome-extension://mlgjaikfffonidgallnbpopjlpdpgelk/splash.html'}, function(tab) {
               whoLiked(tabArr.feedID, function(names) {
-                console.log(names);
-                $(document).ready(function() {
-                  names.forEach(function(name) {
-                    console.log($('#datUniqueContentIDSwagz'));
-                    $('#datUniqueContentIDSwag').append('<p>'+name+'</p>');
+                chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                  chrome.tabs.sendMessage(tabs[0].id, {names: names}, function(response) {
+                    console.log("Message sent, sir");
                   });
                 });
               });
             });
+            deleteFeed(tabArr.feedID);
             // remove that from the blockedURL hash
             // since we have removed all of its
             // open tabs already
