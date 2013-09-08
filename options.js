@@ -5,13 +5,17 @@ function reload_table() {
   $('#blocked-sites').empty();
   var keysArray = Object.keys(localStorage);
   for (var i=0;i<keysArray.length;i++) {
-    $('#blocked-sites').append('<tr><td class="site">'+keysArray[i]+'</td></tr>');
+    $('#blocked-sites').append('<tr><td class="delete">x</td><td class="site">'+keysArray[i]+'</td></tr>');
   }
 }
 
 function append_site(site) {
   var keysArray = Object.keys(localStorage);
-  $('#blocked-sites').append('<tr><td class="site">'+ site + '</td></tr>');
+  $('#blocked-sites').append('<tr><td class="delete">x</td><td class="site">'+site+'</td></tr>');
+  $('.delete').click(function() {
+    localStorage.removeItem($(this).parent('tr').children('.site').text());
+    $(this).parent('tr').remove();
+  });
 }
 
 // Saves options to localStorage.
@@ -46,11 +50,14 @@ function restore_options() {
   }
 }
 
-function save_id_and_token() {
+$(document).ready(function() {
+  reload_table();
+  $('.delete').click(function() {
+    localStorage.removeItem($(this).parent('tr').children('.site').text());
+    $(this).parent('tr').remove();
+  });
+});
 
-}
-
-$(document).ready(reload_table);
 document.addEventListener('DOMContentLoaded', restore_options);
 $('form').submit(function() {
   var userId = document.getElementById("userId").value;
