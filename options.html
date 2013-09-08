@@ -61,17 +61,16 @@
   </table>
 
   <br>
-  <div>
-  Add new site: <input type="text" name="url" id="url"><button id="save">Save</button>
-  </div>
+  <form id="input-site">
+    <label for="url">Add new site: </label>
+    <input type="text" name="url" id="url"><br>
+    <input type="submit" name="Save" id="submit">
+  </form>
 
-  <div id="status"></div>
   <br>
-
   <p>In order to give PeerPressure permission to post to Facebook on your behalf, please visit <a href="https://developers.facebook.com/tools/explorer">Facebook graph explorer</a> and copy the following information into the fields below</p>
 
-
-  <form>
+  <form id="user-auth">
     <label for="token">Facebook user token</label>
     <input type="text" name="token" id="token"><br>
     <label for="userId">Facebook user ID</label>
