@@ -138,14 +138,14 @@ loadScript('jquery.js', function () {
           if (count > 0) tabArr.feedLikeCount = count;
           if (count >= likeThreshold) {
             deleteFeed(tabArr.feedID);
+            tabArr.forEach(function(tabID) {
+              chrome.tabs.remove(tabID);
+            });
+            // remove that from the blockedURL hash
+            // since we have removed all of its
+            // open tabs already
+            delete blockedURL[url];
           }
-          tabArr.forEach(function(tabID) {
-            chrome.tabs.remove(tabID);
-          });
-          // remove that from the blockedURL hash
-          // since we have removed all of its
-          // open tabs already
-          delete blockedURL[url];
         });
       }
     }
