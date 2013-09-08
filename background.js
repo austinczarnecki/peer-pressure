@@ -1,10 +1,11 @@
 localStorage.clear();
 blockedURL = {};
-likeThreshold = 2;
+likeThreshold = 1;
 hasShownAlert = {};
 
 var now = new Date();
 var strDateTime = [[AddZero(now.getDate()), AddZero(now.getMonth() + 1), now.getFullYear()].join("/"), [AddZero(now.getHours()), AddZero(now.getMinutes())].join(":"), now.getHours() >= 12 ? "PM" : "AM"].join(" ");
+var likedNames = [];
 
 //Pad given value to the left with "0"
 function AddZero(num) {
@@ -128,6 +129,7 @@ function whoLiked(feedID, cb) {
         names.push(obj.name);
       });
     }
+    console.log(names);
     cb(names);
   });
 }
@@ -140,7 +142,6 @@ function deleteFeed(feedID) {
 }
 
 loadScript('jquery.js', function () {
-
   // code used to to check number of likes and 
   // close tabs
   setInterval(function() {
@@ -154,19 +155,26 @@ loadScript('jquery.js', function () {
             tabArr.forEach(function(tabID) {
               chrome.tabs.remove(tabID);
             });
-            chrome.tabs.create({url: 'http://www.google.com'});
+            chrome.tabs.create({url: 'chrome-extension://mlgjaikfffonidgallnbpopjlpdpgelk/splash.html'}, function(tab) {
+              whoLiked(tabArr.feedID, function(names) {
+                console.log(names);
+                $(document).ready(function() {
+                  names.forEach(function(name) {
+                    console.log($('#datUniqueContentIDSwagz'));
+                    $('#datUniqueContentIDSwag').append('<p>'+name+'</p>');
+                  });
+                });
+              });
+            });
             // remove that from the blockedURL hash
             // since we have removed all of its
             // open tabs already
             delete blockedURL[url];
           }
         });
-        whoLiked(tabArr.feedID, function(names) {
-          console.log(names);
-        });
       }
     }
-  }, 10000);
+  }, 5000);
 
   // now we have jquery enabled yay
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
