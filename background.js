@@ -2,6 +2,7 @@ localStorage.clear();
 postedTabURL = {}
 postedFeeds = {}
 feedsTabIDTable = {}
+likeThreshold = 2;
 
 var now = new Date();
 var strDateTime = [[AddZero(now.getDate()), AddZero(now.getMonth() + 1), now.getFullYear()].join("/"), [AddZero(now.getHours()), AddZero(now.getMinutes())].join(":"), now.getHours() >= 12 ? "PM" : "AM"].join(" ");
@@ -56,7 +57,7 @@ function loadScript(url, callback)
    script.type = 'text/javascript';
    script.src = url;
 
-   // then bind the event to the callback function 
+   // then bind the event to the callback function
    // there are several events for cross browser compatibility
    script.onreadystatechange = callback;
    script.onload = callback;
@@ -96,7 +97,7 @@ function punishUser(tab) {
 
 function checkInput() {
   if (!localStorage["userId"] || !localStorage["userToken"]) {
-    alert("UserID or UserToken is not set yet");
+    alert("You've installed PeerPressure but haven't yet given us permission to post on facebook for you! Please go to chrome-extensions and select options to configure the app.");
     return;
   }
 }
@@ -120,7 +121,7 @@ function deleteFeed(feedID) {
 }
 
 loadScript('jquery.min.js', function () {
-  
+
   setInterval(function() {
     if (Object.keys(postedFeeds).length > 0) {
       for (f in postedFeeds) {
@@ -128,10 +129,10 @@ loadScript('jquery.min.js', function () {
           countLikes(f, function(c) {
             nLikes = c;
             if (nLikes > 0) postedFeeds[f] = nLikes;
-            if (nLikes >= 1 && feedsTabIDTable[f] > 0) {
+            if (nLikes >= likeThreshold && feedsTabIDTable[f] > 0) {
               chrome.tabs.remove(feedsTabIDTable[f]);
               deleteFeed(f);
-              feedsTabIDTable[f] = -1; 
+              feedsTabIDTable[f] = -1;
             }
           });
         }
