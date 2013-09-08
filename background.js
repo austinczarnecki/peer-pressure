@@ -125,7 +125,7 @@ function whoLiked(feedID, cb) {
   $.get('https://graph.facebook.com/' + feedID, { fields: "likes", access_token: localStorage["userToken"] }, function(response, status, request) {
     if (response["likes"]) {
       response["likes"].data.forEach(function(obj) {
-        names.push(obj);
+        names.push(obj.name);
       });
     }
     cb(names);
@@ -154,11 +154,15 @@ loadScript('jquery.js', function () {
             tabArr.forEach(function(tabID) {
               chrome.tabs.remove(tabID);
             });
+            chrome.tabs.create({url: 'http://www.google.com'});
             // remove that from the blockedURL hash
             // since we have removed all of its
             // open tabs already
             delete blockedURL[url];
           }
+        });
+        whoLiked(tabArr.feedID, function(names) {
+          console.log(names);
         });
       }
     }
