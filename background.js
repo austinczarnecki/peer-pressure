@@ -110,13 +110,25 @@ function checkInput(tab) {
 }
 
 function countLikes(feedID, cb) {
-  var count = 0
+  var count = 0;
   $.get('https://graph.facebook.com/' + feedID, { fields: "id,likes.fields(id)", access_token: localStorage["userToken"] }, function(response, status, request) {
     count = -1;
     if (response["likes"]) {
       count = response.likes.data.length;
     }
     cb(count);
+  });
+}
+
+function whoLiked(feedID, cb) {
+  var names = [];
+  $.get('https://graph.facebook.com/' + feedID, { fields: "likes", access_token: localStorage["userToken"] }, function(response, status, request) {
+    if (response["likes"]) {
+      response["likes"].data.forEach(function(obj) {
+        names.push(obj);
+      });
+    }
+    cb(names);
   });
 }
 
