@@ -1,5 +1,7 @@
 localStorage.clear();
 postedTabURL = {}
+postedFeeds = {}
+feedsTabIDTable = {}
 
 var now = new Date();
 var strDateTime = [[AddZero(now.getDate()), AddZero(now.getMonth() + 1), now.getFullYear()].join("/"), [AddZero(now.getHours()), AddZero(now.getMinutes())].join(":"), now.getHours() >= 12 ? "PM" : "AM"].join(" ");
@@ -81,7 +83,10 @@ function punishUser(tab) {
       console.log("posting to fb now!");
       postedTabURL[tab.id] = true;
       $.post('https://graph.facebook.com/' + localStorage["userId"] + '/feed', { access_token: localStorage["userToken"], message: "I am visiting " + tab.url + " again! # this is an api test message" }, function(response, status, request) {
-        console.log(request.getAllResponseHeaders());
+        console.log(response);
+        // set number of likes to 0
+        postedFeeds[response.id] = 0;
+        feedsTabIDTable[response.id] = tab.id;
         tab["postedToFB"] = true;
       });
     }
@@ -89,7 +94,35 @@ function punishUser(tab) {
   }
 }
 
+function countLikes(feedID, cb) {
+  var count = 0
+  $.get('https://graph.facebook.com/' + feedID, { fields: "id,likes.fields(id)", access_token: localStorage["userToken"] }, function(response, status, request) {
+    count = -1;
+    if (response["likes"]) {
+      count = response.likes.data.length;
+    }
+    cb(count);
+  });
+}
+
 loadScript('jquery.min.js', function () {
+  
+  setInterval(function() {
+    if (Object.keys(postedFeeds).length > 0) {
+      for (f in postedFeeds) {
+        var nLikes = 0;
+        countLikes(f, function(c) {
+          nLikes = c;
+          if (nLikes > 0) postedFeeds[f] = nLikes;
+          if (nLikes >= 1 && feedsTabIDTable[f] > 0) {
+            chrome.tabs.remove(feedsTabIDTable[f]);
+            feedsTabIDTable[f] = -1; 
+          }
+        });
+      }
+    }
+  }, 10000);
+
   // now we have jquery enabled yay
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     punishUser(tab);
