@@ -5,8 +5,9 @@
   /*permalink to color scheme  http://colourco.de/monochrome/5/%23eff8f9 */
   body
     {
-      font-family: 'HelveticaNeue-Light', Helvetica, sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       font-size: 18px;
+      color: #444;
       padding: 20px;
       margin: 20px;
       background-color: #67baca;
@@ -14,6 +15,7 @@
     }
     input {
       background: #d8eef2;
+      width: 50%;
     }
     #content {
       background-color: #b2dde5;
@@ -47,9 +49,36 @@
     }
     p {
     }
-    button {
+    button, #submit {
       white-space: pre;
+      -webkit-appearance: none;
+      -webkit-user-select: none;
+      background-image: -webkit-linear-gradient(#ededed, #ededed 38%, #dedede);
+      border: 1px solid rgba(0, 0, 0, 0.25);
+      border-radius: 2px;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.75);
+      color: #444;
+      font: inherit;
+      font-size: 14px;
+      margin: 8px 8px 0 0;
+      text-shadow: 0 1px 0 rgb(240, 240, 240);
+      width: 120px;
     }
+    /*#submit {
+      white-space: pre;
+      -webkit-appearance: none;
+      -webkit-user-select: none;
+      background-image: -webkit-linear-gradient(#ededed, #ededed 38%, #dedede);
+      border: 1px solid rgba(0, 0, 0, 0.25);
+      border-radius: 2px;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.75);
+      color: #444;
+      font: inherit;
+      font-size: 14px;
+      margin: 0 1px 0 0;
+      text-shadow: 0 1px 0 rgb(240, 240, 240);
+      width: 80px;
+    }*/
 
   </style>
   <title>Peer Pressure Options</title>
@@ -68,7 +97,7 @@
 
   <br>
   <form id="input-site">
-    <label for="url">Add new site: </label>
+    <label for="url">Add new site: </label><br>
     <input type="text" name="url" id="url"><br>
     <input type="submit" name="Save" id="submit">
   </form>
@@ -78,16 +107,15 @@
     <p>In order to give PeerPressure permission to post to Facebook on your behalf, please visit <a href="https://developers.facebook.com/tools/explorer" target="_blank">Facebook graph explorer</a> and copy the following information into the fields below</p>
 
     <form id="user-auth">
-      <label for="token">Facebook user token</label>
+      <label for="token">Facebook user token</label><br>
       <input type="text" name="token" id="token"><br>
-      <label for="userId">Facebook user ID</label>
+      <label for="userId">Facebook user ID</label><br>
       <input type="text" name="userId" id="userId"><br>
       <input type="submit" name="Submit" id="submit">
     </form>
   </section>
   <section id="have-facebook-auth">
     <p>Peer Pressure is currently authorized to post to Facebook on your behalf.</p>
-    <br>
     <button id="delete-fb-auth">Deauthorize</button>
   </section>
 
