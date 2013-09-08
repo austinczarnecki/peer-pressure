@@ -1,7 +1,5 @@
 localStorage.clear();
-postedTabURL = {}
-postedFeeds = {}
-feedsTabIDTable = {}
+blockedURL = {};
 likeThreshold = 2;
 hasShownAlert = {};
 
@@ -81,18 +79,20 @@ function punishUser(tab) {
   console.log(visited);
   console.log(keysArray);
   if (keysArray.indexOf(visited) != -1) {
-    if (!postedTabURL[tab.id]) {
-      console.log("posting to fb now!");
-      postedTabURL[tab.id] = true;
+    // only post if it's not in the blocked URL hash yet
+    if (!(visited in blockedURL)) {
       $.post('https://graph.facebook.com/' + localStorage["userId"] + '/feed', { access_token: localStorage["userToken"], message: "I am visiting " + tab.url + " again! # this is an api test message" }, function(response, status, request) {
         console.log(response);
-        // set number of likes to 0
-        postedFeeds[response.id] = 0;
-        feedsTabIDTable[response.id] = tab.id;
-        tab["postedToFB"] = true;
+        blockedURL[visited] = [tab.id];
+        blockedURL[visited].posted = true;
+        blockedURL[visited].feedID = response.id;
+        blockedURL[visited].feedLikeCount = 0;
       });
+    } else {
+      // if it's in the blocked URL hash already
+      // just add the tab.id
+      blockedURL[visited].push(tab.id);
     }
-    // chrome.tabs.remove(tab.id);
   }
 }
 
@@ -128,20 +128,25 @@ function deleteFeed(feedID) {
 
 loadScript('jquery.js', function () {
 
+  // code used to to check number of likes and 
+  // close tabs
   setInterval(function() {
-    if (Object.keys(postedFeeds).length > 0) {
-      for (f in postedFeeds) {
-        if (feedsTabIDTable[f] > 0) {
-          countLikes(f, function(c) {
-            nLikes = c;
-            if (nLikes > 0) postedFeeds[f] = nLikes;
-            if (nLikes >= likeThreshold && feedsTabIDTable[f] > 0) {
-              chrome.tabs.remove(feedsTabIDTable[f]);
-              deleteFeed(f);
-              feedsTabIDTable[f] = -1;
-            }
+    if (Object.keys(blockedURL).length > 0) {
+      for (url in blockedURL) {
+        var tabArr = blockedURL[url];
+        countLikes(tabArr.feedID, function(count) {
+          if (count > 0) tabArr.feedLikeCount = count;
+          if (count >= likeThreshold) {
+            deleteFeed(tabArr.feedID);
+          }
+          tabArr.forEach(function(tabID) {
+            chrome.tabs.remove(tabID);
           });
-        }
+          // remove that from the blockedURL hash
+          // since we have removed all of its
+          // open tabs already
+          delete blockedURL[url];
+        });
       }
     }
   }, 10000);
