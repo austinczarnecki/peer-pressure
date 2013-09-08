@@ -33,10 +33,33 @@ function save_options() {
 
 $(document).ready(function() {
   reload_table();
+  if ("userToken" in localStorage) {
+    $('#need-facebook-auth').hide();
+  } else {
+    $('#have-facebook-auth').hide();
+  }
+
   $('.delete').click(function() {
     localStorage.removeItem($(this).parent('tr').children('.site').text());
     $(this).parent('tr').remove();
   });
+
+  $('body').on("click", "#delete-fb-auth", function() {
+    console.log("test");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userToken");
+    $('#need-facebook-auth').show();
+    $('#have-facebook-auth').hide();
+  });
+  $('body').on("submit", "#user-auth", function() {
+    var userId = document.getElementById("userId").value;
+    var userToken = document.getElementById("token").value;
+    localStorage["userId"] = userId;
+    localStorage["userToken"] = userToken;
+    $('#need-facebook-auth').hide();
+    $('#have-facebook-auth').show();
+  });
+
 });
 
 $('#input-site').submit(function() {
@@ -44,9 +67,3 @@ $('#input-site').submit(function() {
   save_options();
 })
 
-$('#user-auth').submit(function() {
-  var userId = document.getElementById("userId").value;
-  var userToken = document.getElementById("token").value;
-  localStorage["userId"] = userId;
-  localStorage["userToken"] = userToken;
-})
