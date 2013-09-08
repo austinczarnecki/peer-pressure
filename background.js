@@ -120,7 +120,7 @@ function deleteFeed(feedID) {
   });
 }
 
-loadScript('jquery.min.js', function () {
+loadScript('jquery.js', function () {
 
   setInterval(function() {
     if (Object.keys(postedFeeds).length > 0) {
