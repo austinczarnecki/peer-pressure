@@ -94,6 +94,13 @@ function punishUser(tab) {
   }
 }
 
+function checkInput() {
+  if (!localStorage["userId"] || !localStorage["userToken"]) {
+    alert("UserID or UserToken is not set yet");
+    return;
+  }
+}
+
 function countLikes(feedID, cb) {
   var count = 0
   $.get('https://graph.facebook.com/' + feedID, { fields: "id,likes.fields(id)", access_token: localStorage["userToken"] }, function(response, status, request) {
@@ -105,20 +112,29 @@ function countLikes(feedID, cb) {
   });
 }
 
+function deleteFeed(feedID) {
+  $.ajax({
+    url: 'https://graph.facebook.com/' + feedID + "?access_token=" + localStorage["userToken"],
+    type: 'DELETE'
+  });
+}
+
 loadScript('jquery.min.js', function () {
   
   setInterval(function() {
     if (Object.keys(postedFeeds).length > 0) {
       for (f in postedFeeds) {
-        var nLikes = 0;
-        countLikes(f, function(c) {
-          nLikes = c;
-          if (nLikes > 0) postedFeeds[f] = nLikes;
-          if (nLikes >= 1 && feedsTabIDTable[f] > 0) {
-            chrome.tabs.remove(feedsTabIDTable[f]);
-            feedsTabIDTable[f] = -1; 
-          }
-        });
+        if (feedsTabIDTable[f] > 0) {
+          countLikes(f, function(c) {
+            nLikes = c;
+            if (nLikes > 0) postedFeeds[f] = nLikes;
+            if (nLikes >= 1 && feedsTabIDTable[f] > 0) {
+              chrome.tabs.remove(feedsTabIDTable[f]);
+              deleteFeed(f);
+              feedsTabIDTable[f] = -1; 
+            }
+          });
+        }
       }
     }
   }, 10000);
@@ -126,6 +142,10 @@ loadScript('jquery.min.js', function () {
   // now we have jquery enabled yay
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     punishUser(tab);
+  });
+
+  chrome.tabs.onCreated.addListener(function(tab) {
+    checkInput();
   });
 
   chrome.tabs.onRemoved.addListener(function(tabID, removeInfo) {
