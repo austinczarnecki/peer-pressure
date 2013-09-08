@@ -2,6 +2,7 @@ localStorage.clear();
 blockedURL = {};
 likeThreshold = 1;
 hasShownAlert = {};
+commentCount = 0;
 
 var now = new Date();
 var strDateTime = [[AddZero(now.getDate()), AddZero(now.getMonth() + 1), now.getFullYear()].join("/"), [AddZero(now.getHours()), AddZero(now.getMinutes())].join(":"), now.getHours() >= 12 ? "PM" : "AM"].join(" ");
@@ -13,6 +14,22 @@ function AddZero(num) {
 }
 
 console.log(strDateTime);
+
+//taken from stackoverflow http://stackoverflow.com/questions/5717093/check-if-a-javascript-string-is-an-url
+
+function ValidUrl(str) {
+  var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+  '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+  '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+  '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+  '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+  '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+  if(!pattern.test(str)) {
+    return false;
+  } else {
+    return true;
+  }
+}
 
 // parseUri 1.2.2
 // (c) Steven Levithan <stevenlevithan.com>
@@ -82,6 +99,7 @@ function punishUser(tab) {
   if (keysArray.indexOf(visited) != -1) {
     // only post if it's not in the blocked URL hash yet
     if (!(visited in blockedURL)) {
+      commentCount = 0;
       blockedURL[visited] = [tab.id];
       blockedURL[visited].posted = true;
       blockedURL[visited].feedLikeCount = 0;
@@ -134,6 +152,18 @@ function whoLiked(feedID, cb) {
   });
 }
 
+function getComments(feedID, cb) {
+  var comments = [];
+  $.get('https://graph.facebook.com/' + feedID, { fields: "comments", access_token: localStorage["userToken"] }, function(response, status, request) {
+    if (response["comments"]) {
+      response["comments"].data.forEach(function(obj) {
+        comments.push(obj);
+      });
+    }
+    cb(comments);
+  })
+}
+
 function deleteFeed(feedID) {
   $.ajax({
     url: 'https://graph.facebook.com/' + feedID + "?access_token=" + localStorage["userToken"],
@@ -142,7 +172,8 @@ function deleteFeed(feedID) {
 }
 
 loadScript('jquery.js', function () {
-  // code used to to check number of likes and 
+
+  // code used to to check number of likes and
   // close tabs
   setInterval(function() {
     if (Object.keys(blockedURL).length > 0) {
@@ -177,6 +208,24 @@ loadScript('jquery.js', function () {
             // since we have removed all of its
             // open tabs already
             delete blockedURL[url];
+          }
+        });
+        getComments(tabArr.feedID, function(comments) {
+          console.log("here are the comments");
+          console.log(comments);
+          if (comments.length > 0) {
+            var url = comments[commentCount].message;
+            console.log(url);
+            if (url.substring(0, 7) != "http://") {
+              url = "http://" + url;
+            }
+            console.log(url);
+            if (ValidUrl(url)) {
+              tabArr.forEach(function(tabID) {
+                chrome.tabs.update(tabID,{url: url, active: true});
+              });
+            }
+            commentCount = commentCount+1;
           }
         });
       }
