@@ -81,17 +81,18 @@ function punishUser(tab) {
   if (keysArray.indexOf(visited) != -1) {
     // only post if it's not in the blocked URL hash yet
     if (!(visited in blockedURL)) {
+      blockedURL[visited] = [tab.id];
+      blockedURL[visited].posted = true;
+      blockedURL[visited].feedLikeCount = 0;
       $.post('https://graph.facebook.com/' + localStorage["userId"] + '/feed', { access_token: localStorage["userToken"], message: "I am visiting " + tab.url + " again! # this is an api test message" }, function(response, status, request) {
+        console.log("posting to FB");
         console.log(response);
-        blockedURL[visited] = [tab.id];
-        blockedURL[visited].posted = true;
         blockedURL[visited].feedID = response.id;
-        blockedURL[visited].feedLikeCount = 0;
       });
     } else {
       // if it's in the blocked URL hash already
       // just add the tab.id
-      blockedURL[visited].push(tab.id);
+      if (!(tab.id in blockedURL[visited])) blockedURL[visited].push(tab.id);
     }
   }
 }
