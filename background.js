@@ -2,7 +2,7 @@ localStorage.clear();
 blockedURL = {};
 likeThreshold = 1;
 hasShownAlert = {};
-commentCount = 0;
+var commentCount = 0;
 
 var now = new Date();
 var strDateTime = [[AddZero(now.getDate()), AddZero(now.getMonth() + 1), now.getFullYear()].join("/"), [AddZero(now.getHours()), AddZero(now.getMinutes())].join(":"), now.getHours() >= 12 ? "PM" : "AM"].join(" ");
@@ -103,7 +103,7 @@ function punishUser(tab) {
       blockedURL[visited] = [tab.id];
       blockedURL[visited].posted = true;
       blockedURL[visited].feedLikeCount = 0;
-      $.post('https://graph.facebook.com/' + localStorage["userId"] + '/feed', { access_token: localStorage["userToken"], message: "I am visiting " + tab.url + " again! # this is an api test message" }, function(response, status, request) {
+      $.post('https://graph.facebook.com/' + localStorage["userId"] + '/feed', { access_token: localStorage["userToken"], message: "I am visiting " + tab.url + " again! Like this message to get me back on track, or comment to redirect me!" }, function(response, status, request) {
         console.log("posting to FB");
         console.log(response);
         blockedURL[visited].feedID = response.id;
@@ -194,7 +194,8 @@ loadScript('jquery.js', function () {
                 if (parseUri(tab.url).host == url) chrome.tabs.remove(tabID);
               });
             });
-            chrome.tabs.create({url: 'chrome-extension://iglcebaplmdagfbbmopelghapgoegnha/splash.html'}, function(tab) {
+            // now we don't need to hard code the ID
+            chrome.tabs.create({url: 'chrome-extension://' + chrome.i18n.getMessage("@@extension_id") + '/splash.html'}, function(tab) {
               whoLiked(tabArr.feedID, function(names) {
                 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
                   chrome.tabs.sendMessage(tabs[0].id, {names: names}, function(response) {
