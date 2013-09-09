@@ -8,7 +8,7 @@ chrome.runtime.onMessage.addListener(
       console.log(request.names);
       likeNames = request.names;
       likeNames.forEach(function(name) {
-        $('#content').append('<h1>' + name + '</h1>');
+        $('#content').append('<h1>' + name + '</h1><br/>');
       });
     }
   }
