@@ -57,11 +57,11 @@ $(document).ready(function() {
     $('#have-facebook-auth').hide();
     $('#need-facebook-auth').show();
   });
+  $('#url').focus();
 
 });
 
 $('#input-site').submit(function() {
-  console.log("test");
   save_options();
 })
 
