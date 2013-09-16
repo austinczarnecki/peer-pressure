@@ -1,10 +1,12 @@
 localStorage.clear();
 blockedURL = {};
-likeThreshold = 2;
+likeThreshold = 1;
 hasShownAlert = {};
+var commentCount = 0;
 
 var now = new Date();
 var strDateTime = [[AddZero(now.getDate()), AddZero(now.getMonth() + 1), now.getFullYear()].join("/"), [AddZero(now.getHours()), AddZero(now.getMinutes())].join(":"), now.getHours() >= 12 ? "PM" : "AM"].join(" ");
+var likedNames = [];
 
 //Pad given value to the left with "0"
 function AddZero(num) {
@@ -41,6 +43,22 @@ function onFacebookLogin(tab){
   }
 }
 
+
+//taken from stackoverflow http://stackoverflow.com/questions/5717093/check-if-a-javascript-string-is-an-url
+
+function ValidUrl(str) {
+  var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+  '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+  '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+  '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+  '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+  '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+  if(!pattern.test(str)) {
+    return false;
+  } else {
+    return true;
+  }
+}
 
 // parseUri 1.2.2
 // (c) Steven Levithan <stevenlevithan.com>
@@ -110,10 +128,11 @@ function punishUser(tab) {
   if (keysArray.indexOf(visited) != -1) {
     // only post if it's not in the blocked URL hash yet
     if (!(visited in blockedURL)) {
+      commentCount = 0;
       blockedURL[visited] = [tab.id];
       blockedURL[visited].posted = true;
       blockedURL[visited].feedLikeCount = 0;
-      $.post('https://graph.facebook.com/' + localStorage["userId"] + '/feed', { access_token: localStorage["userToken"], message: "I am visiting " + tab.url + " again! # this is an api test message" }, function(response, status, request) {
+      $.post('https://graph.facebook.com/' + localStorage["userId"] + '/feed', { access_token: localStorage["userToken"], message: "I am visiting " + tab.url + " again! Like this message to get me back on track, or comment to redirect me!" }, function(response, status, request) {
         console.log("posting to FB");
         console.log(response);
         blockedURL[visited].feedID = response.id;
@@ -154,11 +173,24 @@ function whoLiked(feedID, cb) {
   $.get('https://graph.facebook.com/' + feedID, { fields: "likes", access_token: localStorage["userToken"] }, function(response, status, request) {
     if (response["likes"]) {
       response["likes"].data.forEach(function(obj) {
-        names.push(obj);
+        names.push(obj.name);
       });
     }
+    console.log(names);
     cb(names);
   });
+}
+
+function getComments(feedID, cb) {
+  var comments = [];
+  $.get('https://graph.facebook.com/' + feedID, { fields: "comments", access_token: localStorage["userToken"] }, function(response, status, request) {
+    if (response["comments"]) {
+      response["comments"].data.forEach(function(obj) {
+        comments.push(obj);
+      });
+    }
+    cb(comments);
+  })
 }
 
 function deleteFeed(feedID) {
@@ -179,7 +211,6 @@ loadScript('jquery.js', function () {
         countLikes(tabArr.feedID, function(count) {
           if (count > 0) tabArr.feedLikeCount = count;
           if (count >= likeThreshold) {
-            deleteFeed(tabArr.feedID);
             tabArr.forEach(function(tabID) {
               chrome.tabs.get(tabID, function(tab) {
                 // only close the tab if the it's still
@@ -192,15 +223,44 @@ loadScript('jquery.js', function () {
                 if (parseUri(tab.url).host == url) chrome.tabs.remove(tabID);
               });
             });
+            // now we don't need to hard code the ID
+            chrome.tabs.create({url: 'chrome-extension://' + chrome.i18n.getMessage("@@extension_id") + '/splash.html'}, function(tab) {
+              whoLiked(tabArr.feedID, function(names) {
+                chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                  chrome.tabs.sendMessage(tabs[0].id, {names: names}, function(response) {
+                    console.log("Message sent, sir");
+                  });
+                });
+              });
+            });
+            deleteFeed(tabArr.feedID);
             // remove that from the blockedURL hash
             // since we have removed all of its
             // open tabs already
             delete blockedURL[url];
           }
         });
+        getComments(tabArr.feedID, function(comments) {
+          console.log("here are the comments");
+          console.log(comments);
+          if (comments.length > 0) {
+            var url = comments[commentCount].message;
+            console.log(url);
+            if (url.substring(0, 7) != "http://") {
+              url = "http://" + url;
+            }
+            console.log(url);
+            if (ValidUrl(url)) {
+              tabArr.forEach(function(tabID) {
+                chrome.tabs.update(tabID,{url: url, active: true});
+              });
+            }
+            commentCount = commentCount+1;
+          }
+        });
       }
     }
-  }, 10000);
+  }, 5000);
 
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     onFacebookLogin(tab);
