@@ -2,7 +2,7 @@
   "manifest_version": 2,
 
   "name": "Peer Pressure",
-  "description": "This extension keeps you from getting off task",
+  "description": "Keeps you from getting off task by enlisting help from your Facebook friends.",
   "version": "1.0",
   "options_page": "options.html",
   "background": {

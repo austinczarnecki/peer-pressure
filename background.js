@@ -15,7 +15,7 @@ function AddZero(num) {
 
 console.log(strDateTime);
 
-//This function takes care of facebook login when the user clicks login on the options page.
+//This function takes care of facebook login when the user follows the link on the options page.
 //deauthorization function is in options.js
 function onFacebookLogin(tab){
   if (!localStorage.getItem('userToken')) {
