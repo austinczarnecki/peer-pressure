@@ -13,6 +13,35 @@ function AddZero(num) {
 
 console.log(strDateTime);
 
+//This function takes care of facebook login when the user clicks login on the options page.
+//deauthorization function is in options.js
+function onFacebookLogin(tab){
+  if (!localStorage.getItem('userToken')) {
+    chrome.tabs.query({}, function(tabs) { // get all tabs from every window
+      for (var i = 0; i < tabs.length; i++) {
+        if (tabs[i].url.indexOf("https://www.facebook.com/connect/login_success.html") !== -1) {
+          // get string like this: access_token=...&expires_in=...
+          var params = tabs[i].url.split('#')[1];
+
+          var accessToken = params.split('&')[0];
+          accessToken = accessToken.split('=')[1];
+
+          //store the access token in localStorage
+          localStorage.setItem('userToken', accessToken);
+
+          //query facebook for the userId and store it in localStorage
+          $.get("https://graph.facebook.com/me", { fields: "id", access_token: localStorage["userToken"] }, function(data) {
+              localStorage.setItem('userId', data.id);
+          }, "json");
+
+          chrome.tabs.update(tabs[i].id, { url: "/options.html" });
+        }
+      }
+    });
+  }
+}
+
+
 // parseUri 1.2.2
 // (c) Steven Levithan <stevenlevithan.com>
 // MIT License
@@ -141,7 +170,7 @@ function deleteFeed(feedID) {
 
 loadScript('jquery.js', function () {
 
-  // code used to to check number of likes and 
+  // code used to to check number of likes and
   // close tabs
   setInterval(function() {
     if (Object.keys(blockedURL).length > 0) {
@@ -172,6 +201,10 @@ loadScript('jquery.js', function () {
       }
     }
   }, 10000);
+
+  chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+    onFacebookLogin(tab);
+  });
 
   // now we have jquery enabled yay
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {

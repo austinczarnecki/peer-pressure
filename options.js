@@ -47,18 +47,15 @@ $(document).ready(function() {
   });
 
   $('body').on("click", "#delete-fb-auth", function() {
+    $.ajax({
+      url: 'https://graph.facebook.com/' + localStorage["userId"] + '/permissions',
+      data: { access_token: localStorage["userToken"] },
+      type: 'DELETE'
+    });
     localStorage.removeItem("userId");
     localStorage.removeItem("userToken");
-    $('#need-facebook-auth').show();
     $('#have-facebook-auth').hide();
-  });
-  $('body').on("submit", "#user-auth", function() {
-    var userId = document.getElementById("userId").value;
-    var userToken = document.getElementById("token").value;
-    localStorage["userId"] = userId;
-    localStorage["userToken"] = userToken;
-    $('#need-facebook-auth').hide();
-    $('#have-facebook-auth').show();
+    $('#need-facebook-auth').show();
   });
 
 });
